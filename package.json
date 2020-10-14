@@ -1,0 +1,35 @@
+{
+  "name": "bolt-js",
+  "version": "0.1.0",
+  "description": "Client-side fuzzy search with a focus on speed and memory efficiency.",
+  "homepage": "https://github.com/harrisonlo/Bolt#readme",
+  "author": "Harrison Lo",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
+    "babel-jest": "^26.5.2",
+    "jest": "^26.5.3"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harrisonlo/Bolt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/harrisonlo/Bolt/issues"
+  },
+  "keywords": [
+    "fuzzy",
+    "search",
+    "speed",
+    "memory"
+  ],
+  "license": "MIT"
+}

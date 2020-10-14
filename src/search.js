@@ -25,8 +25,12 @@ const search = (term, targets, options) => {
       if (match === null) continue
       if (match.score < threshold) continue
 
-      let result = match
-      if (target.payload) result.payload = target.payload
+      const result = {
+        _indexes: match._indexes,
+        text: match.text,
+        score: match.score,
+        index: i
+      }
 
       if (resultsCount < limit) { 
         ++resultsCount
@@ -58,11 +62,11 @@ const search = (term, targets, options) => {
       if (score === null) continue
       if (score < threshold) continue
 
-      let result = { 
+      const result = { 
         score, 
-        matches 
+        matches,
+        index: i
       }
-      if (target.payload) result.payload = target.payload
 
       if (resultsCount < limit) { 
         ++resultsCount

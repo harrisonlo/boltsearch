@@ -8,7 +8,7 @@ const highlight = (result, openTag, closeTag) => {
   let opened = false
   
   const target = result.text
-  const matchesBest = result.indexes
+  const matchesBest = result._indexes
   
   for (let i = 0; i < target.length; ++i) {
     const char = target[i]

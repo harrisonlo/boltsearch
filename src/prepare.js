@@ -43,7 +43,7 @@ const prepare = (target) => {
   return {
     text: target,
     _codes: prepareLowerCodes(target),
-    _indexes: prepareNextBeginningIndexes(target),
+    _indexes: prepareNextBeginningIndexes(target)
   }
 }
 

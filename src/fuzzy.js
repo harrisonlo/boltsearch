@@ -81,11 +81,11 @@ const fuzzy = (searchLowerCodes, prepared) => {
   if (!successStrict) score *= 1000
   score -= targetLen - searchLen
   let match = {
+    _indexes: [],
     text: prepared.text,
-    indexes: [],
     score
   }
-  for (let i = matchesBestLen - 1; i >= 0; --i) match.indexes[i] = matchesBest[i]
+  for (let i = matchesBestLen - 1; i >= 0; --i) match._indexes[i] = matchesBest[i]
   return match
 }
 

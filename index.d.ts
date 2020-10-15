@@ -22,12 +22,12 @@ declare namespace Bolt {
     readonly matches: MatchResult[]
     readonly index: number
   }
-  type SearchResult = MatchResult[] | MatchesResult[]
+  type SearchResults = MatchResult[] | MatchesResult[]
 }
 
 declare class BoltSearch {
   prepare(target: string): Bolt.TextObject
-  search(term: string, targets: object[], options: Bolt.Options): Bolt.SearchResult
+  search(term: string, targets: object[], options: Bolt.Options): Bolt.SearchResults
   highlight(result: Bolt.MatchResult, openTag?: string, closeTag?: string): string
 }
 

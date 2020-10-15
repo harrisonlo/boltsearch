@@ -2,7 +2,7 @@
   "name": "boltsearch",
   "version": "0.2.0",
   "description": "Fuzzy search library with a focus on speed and memory efficiency.",
-  "homepage": "https://github.com/harrisonlo/Bolt#readme",
+  "homepage": "https://github.com/harrisonlo/boltsearch#readme",
   "author": "Harrison Lo",
   "main": "index.js",
   "types": "index.d.ts",
@@ -19,10 +19,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/harrisonlo/Bolt.git"
+    "url": "git+https://github.com/harrisonlo/boltsearch.git"
   },
   "bugs": {
-    "url": "https://github.com/harrisonlo/Bolt/issues"
+    "url": "https://github.com/harrisonlo/boltsearch/issues"
   },
   "keywords": [
     "fuzzy",

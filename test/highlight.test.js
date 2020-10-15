@@ -7,6 +7,6 @@ test('highlight', () => {
   const options = { key: 'text' }
   const results = search('bo', targets, options)
   const result = results[0]
-  const value = highlight(result, '<span>', '</span>')
+  const value = highlight(result.match, '<span>', '</span>')
   expect(value).toBe('<span>bo</span>lt')
 })

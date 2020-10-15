@@ -195,10 +195,12 @@
         if (match.score < threshold) continue
 
         const result = {
-          _indexes: match._indexes,
-          text: match.text,
+          index: i,
           score: match.score,
-          index: i
+          match: {
+            text: match.text,
+            _indexes: match._indexes,
+          }
         };
 
         if (resultsCount < limit) { 
@@ -232,9 +234,9 @@
         if (score < threshold) continue
 
         const result = { 
+          index: i,
           score, 
-          matches,
-          index: i
+          matches
         };
 
         if (resultsCount < limit) { 
@@ -254,7 +256,7 @@
   };
 
   const highlight = (result, openTag, closeTag) => {
-    if (result === null) return null
+    if (result === undefined) return null
     if (openTag === undefined) openTag = '<b>';
     if (closeTag === undefined) closeTag = '</b>';
 

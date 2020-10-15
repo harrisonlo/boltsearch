@@ -7,10 +7,11 @@ test('search', () => {
   const options = { key: 'text' }
   const results = search('bo', targets, options)
   expect(results).toHaveLength(1)
-  expect(results[0]).toHaveProperty('_indexes')
-  expect(results[0]).toHaveProperty('text')
-  expect(results[0]).toHaveProperty('score')
   expect(results[0]).toHaveProperty('index')
+  expect(results[0]).toHaveProperty('score')
+  expect(results[0]).toHaveProperty('match')
+  expect(results[0].match).toHaveProperty('text')
+  expect(results[0].match).toHaveProperty('_indexes')
   expect(results[0].index).toBe(0)
 })
 
@@ -23,8 +24,8 @@ test('search with multiple fields', () => {
   const options = { keys: ['text1', 'text2'] }
   const results = search('l', targets, options)
   expect(results).toHaveLength(1)
+  expect(results[0]).toHaveProperty('index')
   expect(results[0]).toHaveProperty('score')
   expect(results[0]).toHaveProperty('matches')
-  expect(results[0]).toHaveProperty('index')
   expect(results[0].matches).toHaveLength(2)
 })

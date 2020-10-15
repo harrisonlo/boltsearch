@@ -17,22 +17,21 @@ declare namespace BoltSearch {
     keys?: string[]
     weights?: number[]
   }
-  type MatchResult = {
+  type Match = {
     readonly text: string
-    readonly score: number
-    readonly index: number
     readonly _indexes: number[]
   }
-  type MatchesResult = {
-    readonly score: number
-    readonly matches: MatchResult[]
+  type SearchResult = {
     readonly index: number
+    readonly score: number
+    readonly match?: Match
+    readonly matches?: Match[]
   }
-  type SearchResults = MatchResult[] | MatchesResult[]
+  type SearchResults = SearchResult[]
 }
 
 declare interface BoltSearch {
   prepare(target: string): BoltSearch.TextObject
   search(term: string, targets: object[], options: BoltSearch.Options): BoltSearch.SearchResults
-  highlight(result: BoltSearch.MatchResult, openTag?: string, closeTag?: string): string
+  highlight(result: BoltSearch.Match | undefined, openTag?: string, closeTag?: string): string
 }

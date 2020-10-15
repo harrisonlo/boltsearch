@@ -55,7 +55,7 @@ const Movies: FC = () => {
     const start = Date.now()
     const options = {
       keys: ['title', 'description', 'tags.genresText', 'tags.actorsText'],
-      weights: [5000, -2000, 0, 2000],
+      weights: [100000, -2000, 0, 50000],
       threshold: -5000,
       limit: 100
     }

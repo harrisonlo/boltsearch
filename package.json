@@ -1,7 +1,7 @@
 {
   "name": "boltsearch",
-  "version": "0.1.0",
-  "description": "Client-side fuzzy search with a focus on speed and memory efficiency.",
+  "version": "0.2.0",
+  "description": "Fuzzy search library with a focus on speed and memory efficiency.",
   "homepage": "https://github.com/harrisonlo/Bolt#readme",
   "author": "Harrison Lo",
   "main": "index.js",

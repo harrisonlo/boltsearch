@@ -1,21 +1,22 @@
 {
   "name": "boltsearch",
-  "version": "0.4.0",
+  "version": "0.5.0",
+  "author": "Harrison Lo",
   "description": "Fuzzy search library with a focus on speed and memory efficiency.",
   "homepage": "https://github.com/harrisonlo/boltsearch#readme",
-  "author": "Harrison Lo",
-  "main": "index.js",
+  "main": "dist/boltsearch.cjs.js",
+  "module": "dist/boltsearch.esm.js",
+  "browser": "dist/boltsearch.umd.js",
   "types": "index.d.ts",
   "scripts": {
     "test": "jest",
+    "build": "rollup -c",
     "deploy": "cd example && yarn build && gh-pages -d build"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.6",
-    "@babel/preset-env": "^7.11.5",
-    "babel-jest": "24.9.0",
     "gh-pages": "^3.1.0",
-    "jest": "24.9.0"
+    "jest": "24.9.0",
+    "rollup": "^2.30.0"
   },
   "repository": {
     "type": "git",

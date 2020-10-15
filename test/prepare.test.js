@@ -1,4 +1,4 @@
-import prepare from '../src/prepare'
+const { prepare } = require('../dist/boltsearch.cjs')
 
 test('prepare', () => {
   const text = 'bolt'

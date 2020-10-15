@@ -1,6 +1,4 @@
-import highlight from '../src/highlight'
-import prepare from '../src/prepare'
-import search from '../src/search'
+const { prepare, search, highlight } = require('../dist/boltsearch.cjs')
 
 test('highlight', () => {
   const text = 'bolt'

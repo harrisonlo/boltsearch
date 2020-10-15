@@ -1,4 +1,4 @@
-declare namespace Bolt {
+declare namespace BoltSearch {
   type TextObject = {
     text: string
     _codes: number[]
@@ -26,9 +26,9 @@ declare namespace Bolt {
 }
 
 declare class BoltSearch {
-  prepare(target: string): Bolt.TextObject
-  search(term: string, targets: object[], options: Bolt.Options): Bolt.SearchResults
-  highlight(result: Bolt.MatchResult, openTag?: string, closeTag?: string): string
+  prepare(target: string): BoltSearch.TextObject
+  search(term: string, targets: object[], options: BoltSearch.Options): BoltSearch.SearchResults
+  highlight(result: BoltSearch.MatchResult, openTag?: string, closeTag?: string): string
 }
 
 export = BoltSearch

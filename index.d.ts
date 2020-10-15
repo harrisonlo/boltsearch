@@ -1,4 +1,4 @@
-declare namespace BoltSearch {
+declare namespace Bolt {
   type TextObject = {
     text: string
     _codes: number[]
@@ -12,23 +12,23 @@ declare namespace BoltSearch {
     weights?: number[]
   }
   type MatchResult = {
-    readonly _indexes: number[]
     readonly text: string
     readonly score: number
     readonly index: number
+    readonly _indexes: number[]
   }
   type MatchesResult = {
     readonly score: number
     readonly matches: MatchResult[]
     readonly index: number
   }
-  type SearchResult = MatchResult | MatchesResult
+  type SearchResult = MatchResult[] | MatchesResult[]
 }
 
 declare class BoltSearch {
-  prepare(target: string): TextObject
-  search(term: string, targets: object[], options: Options): SearchResult[]
-  highlight(result: MatchResult, openTag?: string, closeTag?: string): string
+  prepare(target: string): Bolt.TextObject
+  search(term: string, targets: object[], options: Bolt.Options): Bolt.SearchResult
+  highlight(result: Bolt.MatchResult, openTag?: string, closeTag?: string): string
 }
 
 export = BoltSearch

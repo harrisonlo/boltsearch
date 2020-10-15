@@ -1,3 +1,9 @@
+export as namespace BoltSearch
+
+declare var BoltSearch: BoltSearch
+
+export = BoltSearch
+
 declare namespace BoltSearch {
   type TextObject = {
     text: string
@@ -25,10 +31,8 @@ declare namespace BoltSearch {
   type SearchResults = MatchResult[] | MatchesResult[]
 }
 
-declare class BoltSearch {
+declare interface BoltSearch {
   prepare(target: string): BoltSearch.TextObject
   search(term: string, targets: object[], options: BoltSearch.Options): BoltSearch.SearchResults
   highlight(result: BoltSearch.MatchResult, openTag?: string, closeTag?: string): string
 }
-
-export = BoltSearch

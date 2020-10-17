@@ -43,7 +43,11 @@ const prepareNextBeginningIndexes = (target) => {
 };
 
 const prepare = (target) => {
-  if (!target) return
+  if (!target) return {
+    text: '',
+    _codes: [],
+    _indexes: []
+  }
   return {
     text: target,
     _codes: prepareLowerCodes(target),
@@ -254,6 +258,7 @@ const search = (term, targets, options) => {
 };
 
 const highlight = (result, openTag, closeTag) => {
+  if (result === null) return null
   if (result === undefined) return null
   if (openTag === undefined) openTag = '<b>';
   if (closeTag === undefined) closeTag = '</b>';

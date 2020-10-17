@@ -39,7 +39,11 @@ const prepareNextBeginningIndexes = (target) => {
 }
 
 const prepare = (target) => {
-  if (!target) return
+  if (!target) return {
+    text: '',
+    _codes: [],
+    _indexes: []
+  }
   return {
     text: target,
     _codes: prepareLowerCodes(target),

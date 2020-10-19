@@ -39,7 +39,7 @@ const Words: FC = () => {
       onChange={e => setSearchTerm(e.target.value)}
       autoFocus
     />
-    {searchTime > 0 && <p className='timer'>{searchResults.length} matches found in {searchTime}ms</p>}
+    {searchTerm && <p className='timer'>{searchResults.length} matches found in {searchTime}ms</p>}
     <ul>
       {searchResults.slice(0, 100).map(result => (
         <li 

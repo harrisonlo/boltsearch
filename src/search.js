@@ -5,7 +5,7 @@ import { getValue, getWeightedScore, MAX_SAFE_INTEGER } from './utils'
 
 const search = (term, targets, options) => {
   if (!term) return []
-  term = prepareLowerCodes(term)
+  const termLowerCodes = prepareLowerCodes(term)
   
   const q = queue()
 
@@ -21,7 +21,7 @@ const search = (term, targets, options) => {
        
       if (!prepared || !prepared._codes || !prepared._indexes) continue 
 
-      let match = fuzzy(term, prepared)
+      let match = fuzzy(termLowerCodes, prepared)
       if (match === null) continue
       if (match.score < threshold) continue
 
@@ -57,7 +57,7 @@ const search = (term, targets, options) => {
           continue 
         }
 
-        matches[keyI] = fuzzy(term, prepared)
+        matches[keyI] = fuzzy(termLowerCodes, prepared)
       }
 
       const score = getWeightedScore(matches, options.weights || [])

@@ -1,54 +1,43 @@
-const fuzzy = (searchLowerCodes, prepared) => {
-  let searchLowerCode = searchLowerCodes[0]
-  let matchesSimple = []
-  let matchesStrict = []
+const fuzzy = (termLowerCodes, prepared) => {
   const targetLowerCodes = prepared._codes
-  const searchLen = searchLowerCodes.length
+  const termLen = termLowerCodes.length
   const targetLen = targetLowerCodes.length
-  let searchI = 0
+  let termI = 0
   let targetI = 0
-  let matchesSimpleLen = 0
-
-  // Remove non-matching targets with basic fuzzy match.
-  // Walk through target and find sequential matches.
-  // If all chars aren't found then exit.
+  let simpleMatches = []
+  let simpleMatchesLen = 0
+  let termLowerCode = termLowerCodes[0]
+  
+  // Go through term and target codes to find sequential matches.
+  // If not all term characters are found, exit fuzzy function with null.
   for (;;) {
-    const isMatch = searchLowerCode === targetLowerCodes[targetI]
-    if (isMatch) {
-      matchesSimple[matchesSimpleLen++] = targetI
-      ++searchI
-      if (searchI === searchLen) break
-      searchLowerCode = searchLowerCodes[searchI]
+    if (termLowerCode === targetLowerCodes[targetI]) {
+      simpleMatches[simpleMatchesLen++] = targetI
+      ++termI
+      if (termI === termLen) break
+      termLowerCode = termLowerCodes[termI]
     }
     ++targetI
-    if (targetI >= targetLen) return null // Failed to find searchI.
+    if (targetI >= targetLen) return null
   }
 
-  searchI = 0
-  let successStrict = false
-  let matchesStrictLen = 0
-
+  // Target matched all term characters in sequence,
+  // move on to strict test to improve the score.
   const nextBeginningIndexes = prepared._indexes
+  termI = 0
+  targetI = 0 // ?
+  let strictSuccess = false
+  let strictMatches = []
+  let strictMatchesLen = 0
 
-  // Target string successfully matched all characters in sequence.
-  // Move on to strict test to improve the score.
   // Only count it as a match if it's consecutive or a beginning character.
-  if (targetI !== targetLen) for (;;) {
-    // Failed to find a good spot for this search char, 
-    // go back to the previous search char and force it forward.
-    if (targetI >= targetLen) {
-      if (searchI <= 0) break // Failed to push chars forward for a better match.
-      --searchI
-      const lastMatch = matchesStrict[--matchesStrictLen]
-      targetI = nextBeginningIndexes[lastMatch]
-    } 
-    else {
-      const isMatch = searchLowerCodes[searchI] === targetLowerCodes[targetI]
-      if (isMatch) {
-        matchesStrict[matchesStrictLen++] = targetI
-        ++searchI
-        if (searchI === searchLen) { 
-          successStrict = true
+  for (;;) {
+    if (targetI < targetLen) {
+      if (termLowerCodes[termI] === targetLowerCodes[targetI]) {
+        strictMatches[strictMatchesLen++] = targetI
+        ++termI
+        if (termI === termLen) { 
+          strictSuccess = true
           break 
         }
         ++targetI
@@ -57,35 +46,36 @@ const fuzzy = (searchLowerCodes, prepared) => {
         targetI = nextBeginningIndexes[targetI]
       }
     }
+    else break
   }
 
-  // Calculate the score which goes down if they're not consecutive.
-  // Keep track of match indexes for highlighting.
-  let matchesBest
-  let matchesBestLen
-  if (successStrict) { 
-    matchesBest = matchesStrict
-    matchesBestLen = matchesStrictLen 
+  // Get the score, which goes down if they're not consecutive.
+  // Get the match indexes for highlighting.
+  let matchIndexes
+  let matchIndexesLen
+  if (strictSuccess) { 
+    matchIndexes = strictMatches
+    matchIndexesLen = strictMatchesLen 
   }
   else { 
-    matchesBest = matchesSimple
-    matchesBestLen = matchesSimpleLen 
+    matchIndexes = simpleMatches
+    matchIndexesLen = simpleMatchesLen 
   }
   let score = 0
   let lastTargetI = -1
-  for (let i = 0; i < searchLen; ++i) {
-    targetI = matchesBest[i]
+  for (let i = 0; i < termLen; ++i) {
+    targetI = matchIndexes[i]
     if (lastTargetI !== targetI - 1) score -= targetI
     lastTargetI = targetI
   }
-  if (!successStrict) score *= 1000
-  score -= targetLen - searchLen
+  if (!strictSuccess) score *= 1000
+  score -= targetLen - termLen
   let match = {
     _indexes: [],
     text: prepared.text,
     score
   }
-  for (let i = matchesBestLen - 1; i >= 0; --i) match._indexes[i] = matchesBest[i]
+  for (let i = matchIndexesLen - 1; i >= 0; --i) match._indexes[i] = matchIndexes[i]
   return match
 }
 

@@ -3,7 +3,7 @@ import fuzzy from './fuzzy'
 import { prepareLowerCodes } from './prepare'
 import { getValue, getWeightedScore, MAX_SAFE_INTEGER } from './utils'
 
-const search = (term, targets, options) => {
+function search (term, targets, options) {
   if (!term) return []
   const termLowerCodes = prepareLowerCodes(term)
   

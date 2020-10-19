@@ -1,6 +1,6 @@
 export const MAX_SAFE_INTEGER = 9007199254740991
 
-export const getValue = (obj, prop) => {
+export function getValue (obj, prop) {
   const tmp = obj[prop]
   if (tmp !== undefined) return tmp
   let segs = prop
@@ -10,7 +10,7 @@ export const getValue = (obj, prop) => {
   return obj
 }
 
-export const getWeightedScore = (matches, weights) => {
+export function getWeightedScore (matches, weights) {
   let max = -MAX_SAFE_INTEGER
   for (let i = matches.length - 1; i >= 0; --i) {
     const match = matches[i]

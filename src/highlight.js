@@ -1,4 +1,4 @@
-const highlight = (result, openTag, closeTag) => {
+function highlight (result, openTag, closeTag) {
   if (result === null) return null
   if (result === undefined) return null
   if (openTag === undefined) openTag = '<b>'

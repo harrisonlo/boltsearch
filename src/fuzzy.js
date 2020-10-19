@@ -1,4 +1,4 @@
-const fuzzy = (termLowerCodes, prepared) => {
+function fuzzy (termLowerCodes, prepared) {
   const targetLowerCodes = prepared._codes
   const termLen = termLowerCodes.length
   const targetLen = targetLowerCodes.length

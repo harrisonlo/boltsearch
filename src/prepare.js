@@ -1,10 +1,10 @@
-export function prepareLowerCodes (target) {
+export function prepareLowerCodes(target) {
   let lowerCodes = []
   for (let i = 0; i < target.length; ++i) lowerCodes[i] = target.toLowerCase().charCodeAt(i)
   return lowerCodes
 }
 
-function prepareBeginningIndexes (target) {
+function prepareBeginningIndexes(target) {
   let beginningIndexes = []
   let beginningIndexesLen = 0
   let wasUpper = false
@@ -21,7 +21,7 @@ function prepareBeginningIndexes (target) {
   return beginningIndexes
 }
 
-function prepareNextBeginningIndexes (target) {
+function prepareNextBeginningIndexes(target) {
   let beginningIndexes = prepareBeginningIndexes(target)
   let nextBeginningIndexes = []
   let lastIsBeginning = beginningIndexes[0]
@@ -38,7 +38,7 @@ function prepareNextBeginningIndexes (target) {
   return nextBeginningIndexes
 }
 
-function prepare (target) {
+function prepare(target) {
   if (!target) return {
     text: '',
     _codes: [],

@@ -3,23 +3,23 @@ import fuzzy from './fuzzy'
 import { prepareLowerCodes } from './prepare'
 import { getValue, getWeightedScore, MAX_SAFE_INTEGER } from './utils'
 
-function search (term, targets, options) {
+function search(term, targets, options) {
   if (!term) return []
   const termLowerCodes = prepareLowerCodes(term)
-  
+
   const q = queue()
 
   const threshold = options.threshold || -MAX_SAFE_INTEGER
   const limit = options.limit || MAX_SAFE_INTEGER
-  
+
   let resultsCount = 0
 
   if (options.key) {
     for (let i = targets.length - 1; i >= 0; --i) {
       const target = targets[i]
-      const prepared = getValue(target, options.key)    
-       
-      if (!prepared || !prepared._codes || !prepared._indexes) continue 
+      const prepared = getValue(target, options.key)
+
+      if (!prepared || !prepared._codes || !prepared._indexes) continue
 
       let match = fuzzy(termLowerCodes, prepared)
       if (match === null) continue
@@ -34,7 +34,7 @@ function search (term, targets, options) {
         }
       }
 
-      if (resultsCount < limit) { 
+      if (resultsCount < limit) {
         ++resultsCount
         q.add(result)
       }
@@ -44,17 +44,17 @@ function search (term, targets, options) {
     }
   }
 
-  if (options.keys) {    
+  if (options.keys) {
     for (let i = targets.length - 1; i >= 0; --i) {
       const target = targets[i]
 
       let matches = []
       for (let keyI = options.keys.length - 1; keyI >= 0; --keyI) {
         const prepared = getValue(target, options.keys[keyI])
-        
-        if (!prepared || !prepared._codes || !prepared._indexes) { 
+
+        if (!prepared || !prepared._codes || !prepared._indexes) {
           matches[keyI] = null
-          continue 
+          continue
         }
 
         matches[keyI] = fuzzy(termLowerCodes, prepared)
@@ -64,13 +64,13 @@ function search (term, targets, options) {
       if (score === null) continue
       if (score < threshold) continue
 
-      const result = { 
+      const result = {
         index: i,
-        score, 
+        score,
         matches
       }
 
-      if (resultsCount < limit) { 
+      if (resultsCount < limit) {
         ++resultsCount
         q.add(result)
       }
@@ -78,8 +78,8 @@ function search (term, targets, options) {
         if (result.score > q.peek().score) q.replaceTop(result)
       }
     }
-  } 
-  
+  }
+
   if (resultsCount === 0) return []
   let results = []
   for (let i = resultsCount - 1; i >= 0; --i) results[i] = q.poll()

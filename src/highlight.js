@@ -1,4 +1,6 @@
-function highlight (result, openTag, closeTag) {
+import { escapeHTML } from './utils'
+
+function highlight(result, openTag, closeTag) {
   if (result === null) return null
   if (result === undefined) return null
   if (openTag === undefined) openTag = '<b>'
@@ -7,23 +9,24 @@ function highlight (result, openTag, closeTag) {
   let highlighted = ''
   let matchesIndex = 0
   let opened = false
-  
+
   const target = result.text
-  const matchesBest = result._indexes
-  
+  const matchIndexes = result._indexes
+
   for (let i = 0; i < target.length; ++i) {
-    const char = target[i]
-    if (matchesBest[matchesIndex] === i) {
+    let char = target[i]
+    if (matchIndexes[matchesIndex] === i) {
+      char = escapeHTML(char)
       ++matchesIndex
       if (!opened) {
         opened = true
         highlighted += openTag
       }
-      if (matchesIndex === matchesBest.length) {
+      if (matchesIndex === matchIndexes.length) {
         highlighted += char + closeTag + target.substr(i + 1)
         break
       }
-    } 
+    }
     else {
       if (opened) {
         opened = false
@@ -32,7 +35,7 @@ function highlight (result, openTag, closeTag) {
     }
     highlighted += char
   }
-  
+
   return highlighted
 }
 

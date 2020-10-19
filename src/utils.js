@@ -1,6 +1,6 @@
 export const MAX_SAFE_INTEGER = 9007199254740991
 
-export function getValue (obj, prop) {
+export function getValue(obj, prop) {
   const tmp = obj[prop]
   if (tmp !== undefined) return tmp
   let segs = prop
@@ -10,7 +10,7 @@ export function getValue (obj, prop) {
   return obj
 }
 
-export function getWeightedScore (matches, weights) {
+export function getWeightedScore(matches, weights) {
   let max = -MAX_SAFE_INTEGER
   for (let i = matches.length - 1; i >= 0; --i) {
     const match = matches[i]
@@ -21,4 +21,19 @@ export function getWeightedScore (matches, weights) {
   }
   if (max === -MAX_SAFE_INTEGER) return null
   return max
+}
+
+export function escapeHTML(unsafe) {
+  return unsafe.replace(/[&<"']/g, (char) => {
+    switch (char) {
+      case '&':
+        return '&amp;'
+      case '<':
+        return '&lt;'
+      case '"':
+        return '&quot;'
+      default:
+        return '&#039;'
+    }
+  })
 }

@@ -1,4 +1,4 @@
-function fuzzy (termLowerCodes, prepared) {
+function fuzzy(termLowerCodes, prepared) {
   const targetLowerCodes = prepared._codes
   const termLen = termLowerCodes.length
   const targetLen = targetLowerCodes.length
@@ -7,7 +7,7 @@ function fuzzy (termLowerCodes, prepared) {
   let simpleMatches = []
   let simpleMatchesLen = 0
   let termLowerCode = termLowerCodes[0]
-  
+
   // Go through term and target codes to find sequential matches.
   // If not all term characters are found, exit fuzzy function with null.
   for (;;) {
@@ -36,12 +36,12 @@ function fuzzy (termLowerCodes, prepared) {
       if (termLowerCodes[termI] === targetLowerCodes[targetI]) {
         strictMatches[strictMatchesLen++] = targetI
         ++termI
-        if (termI === termLen) { 
+        if (termI === termLen) {
           strictSuccess = true
-          break 
+          break
         }
         ++targetI
-      } 
+      }
       else {
         targetI = nextBeginningIndexes[targetI]
       }
@@ -53,13 +53,13 @@ function fuzzy (termLowerCodes, prepared) {
   // Get the match indexes for highlighting.
   let matchIndexes
   let matchIndexesLen
-  if (strictSuccess) { 
+  if (strictSuccess) {
     matchIndexes = strictMatches
-    matchIndexesLen = strictMatchesLen 
+    matchIndexesLen = strictMatchesLen
   }
-  else { 
+  else {
     matchIndexes = simpleMatches
-    matchIndexesLen = simpleMatchesLen 
+    matchIndexesLen = simpleMatchesLen
   }
   let score = 0
   let lastTargetI = -1

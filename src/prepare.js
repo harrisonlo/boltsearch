@@ -1,6 +1,12 @@
 export function prepareLowerCodes(target) {
   let lowerCodes = []
-  for (let i = 0; i < target.length; ++i) lowerCodes[i] = target.toLowerCase().charCodeAt(i)
+  for (let i = 0; i < target.length; ++i) {
+    lowerCodes[i] = target
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .charCodeAt(i)
+  }
   return lowerCodes
 }
 

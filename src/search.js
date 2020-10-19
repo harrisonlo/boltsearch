@@ -87,9 +87,12 @@ function search(term, targets, options) {
 }
 
 function process(term, targets, options) {
-  const values = term.trim().replace(/\s+/g,' ').split(' ')
+  let values = term.trim().replace(/\s+/g,' ').split(' ')
   if (values.length === 1) return search(values[0], targets, options)
   else {
+    if (values.includes('&')) values.push('and')
+    if (values.includes('and')) values.push('&')
+    values = [...new Set(values)]
     const results = values.flatMap(term => search(term, targets, options))
     let map = {}
     for (let i = results.length -1; i >= 0; --i) {

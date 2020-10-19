@@ -1,7 +1,7 @@
 import queue from './queue'
 import fuzzy from './fuzzy'
 import { prepareLowerCodes } from './prepare'
-import { getValue, getWeightedScore, MAX_SAFE_INTEGER } from './utils'
+import { getValue, getWeightedScore, mergeMatch, MAX_SAFE_INTEGER } from './utils'
 
 function search(term, targets, options) {
   if (!term) return []
@@ -86,4 +86,33 @@ function search(term, targets, options) {
   return results
 }
 
-export default search
+function process(term, targets, options) {
+  const values = term.trim().replace(/\s+/g,' ').split(' ')
+  if (values.length === 1) return search(values[0], targets, options)
+  else {
+    const results = values.flatMap(term => search(term, targets, options))
+    let map = {}
+    for (let i = results.length -1; i >= 0; --i) {
+      const result = results[i]
+      const resultI = result.index
+      const mapped = map[resultI]
+      map[resultI] = {
+        index: resultI,
+        score: (mapped && mapped.score > result.score) ? mapped.score : result.score,
+        ...(result.match && { 
+          match: mapped 
+            ? mergeMatch(mapped.match, result.match) 
+            : result.match 
+        }),
+        ...(result.matches && { 
+          matches: mapped 
+            ? mapped.matches.map((match, index) => mergeMatch(match, result.matches[index]) ) 
+            : result.matches 
+        })
+      }
+    }
+    return Object.values(map).sort((a, b) => b.score - a.score)
+  }
+}
+
+export default process

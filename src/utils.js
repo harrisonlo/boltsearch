@@ -37,3 +37,12 @@ export function escapeHTML(unsafe) {
     }
   })
 }
+
+export function mergeMatch(a, b) {
+  if (!a) return b
+  if (!b) return a
+  return {
+    text: a.text,
+    _indexes: a._indexes.concat(b._indexes.filter(item => a._indexes.indexOf(item) < 0))
+  }
+}

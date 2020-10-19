@@ -1,10 +1,10 @@
-const prepareLowerCodes = (target) => {
+function prepareLowerCodes (target) {
   let lowerCodes = [];
   for (let i = 0; i < target.length; ++i) lowerCodes[i] = target.toLowerCase().charCodeAt(i);
   return lowerCodes
-};
+}
 
-const prepareBeginningIndexes = (target) => {
+function prepareBeginningIndexes (target) {
   let beginningIndexes = [];
   let beginningIndexesLen = 0;
   let wasUpper = false;
@@ -19,9 +19,9 @@ const prepareBeginningIndexes = (target) => {
     if (isBeginning) beginningIndexes[beginningIndexesLen++] = i;
   }
   return beginningIndexes
-};
+}
 
-const prepareNextBeginningIndexes = (target) => {
+function prepareNextBeginningIndexes (target) {
   let beginningIndexes = prepareBeginningIndexes(target);
   let nextBeginningIndexes = [];
   let lastIsBeginning = beginningIndexes[0];
@@ -36,9 +36,9 @@ const prepareNextBeginningIndexes = (target) => {
     }
   }
   return nextBeginningIndexes
-};
+}
 
-const prepare = (target) => {
+function prepare (target) {
   if (!target) return {
     text: '',
     _codes: [],
@@ -49,62 +49,51 @@ const prepare = (target) => {
     _codes: prepareLowerCodes(target),
     _indexes: prepareNextBeginningIndexes(target)
   }
-};
+}
 
 // https://github.com/lemire/FastPriorityQueue.js
 const queue = function(){var r=[],o=0,e={};function n(){for(var e=0,n=r[e],c=1;c<o;){var f=c+1;e=c,f<o&&r[f].score<r[c].score&&(e=f),r[e-1>>1]=r[e],c=1+(e<<1);}for(var a=e-1>>1;e>0&&n.score<r[a].score;a=(e=a)-1>>1)r[e]=r[a];r[e]=n;}return e.add=function(e){var n=o;r[o++]=e;for(var c=n-1>>1;n>0&&e.score<r[c].score;c=(n=c)-1>>1)r[n]=r[c];r[n]=e;},e.poll=function(){if(0!==o){var e=r[0];return r[0]=r[--o],n(),e}},e.peek=function(e){if(0!==o)return r[0]},e.replaceTop=function(o){r[0]=o,n();},e};
 
-const fuzzy = (searchLowerCodes, prepared) => {
-  let searchLowerCode = searchLowerCodes[0];
-  let matchesSimple = [];
-  let matchesStrict = [];
+function fuzzy (termLowerCodes, prepared) {
   const targetLowerCodes = prepared._codes;
-  const searchLen = searchLowerCodes.length;
+  const termLen = termLowerCodes.length;
   const targetLen = targetLowerCodes.length;
-  let searchI = 0;
+  let termI = 0;
   let targetI = 0;
-  let matchesSimpleLen = 0;
-
-  // Remove non-matching targets with basic fuzzy match.
-  // Walk through target and find sequential matches.
-  // If all chars aren't found then exit.
+  let simpleMatches = [];
+  let simpleMatchesLen = 0;
+  let termLowerCode = termLowerCodes[0];
+  
+  // Go through term and target codes to find sequential matches.
+  // If not all term characters are found, exit fuzzy function with null.
   for (;;) {
-    const isMatch = searchLowerCode === targetLowerCodes[targetI];
-    if (isMatch) {
-      matchesSimple[matchesSimpleLen++] = targetI;
-      ++searchI;
-      if (searchI === searchLen) break
-      searchLowerCode = searchLowerCodes[searchI];
+    if (termLowerCode === targetLowerCodes[targetI]) {
+      simpleMatches[simpleMatchesLen++] = targetI;
+      ++termI;
+      if (termI === termLen) break
+      termLowerCode = termLowerCodes[termI];
     }
     ++targetI;
-    if (targetI >= targetLen) return null // Failed to find searchI.
+    if (targetI >= targetLen) return null
   }
 
-  searchI = 0;
-  let successStrict = false;
-  let matchesStrictLen = 0;
-
+  // Target matched all term characters in sequence,
+  // move on to strict test to improve the score.
   const nextBeginningIndexes = prepared._indexes;
+  termI = 0;
+  targetI = 0; // ?
+  let strictSuccess = false;
+  let strictMatches = [];
+  let strictMatchesLen = 0;
 
-  // Target string successfully matched all characters in sequence.
-  // Move on to strict test to improve the score.
   // Only count it as a match if it's consecutive or a beginning character.
-  if (targetI !== targetLen) for (;;) {
-    // Failed to find a good spot for this search char, 
-    // go back to the previous search char and force it forward.
-    if (targetI >= targetLen) {
-      if (searchI <= 0) break // Failed to push chars forward for a better match.
-      --searchI;
-      const lastMatch = matchesStrict[--matchesStrictLen];
-      targetI = nextBeginningIndexes[lastMatch];
-    } 
-    else {
-      const isMatch = searchLowerCodes[searchI] === targetLowerCodes[targetI];
-      if (isMatch) {
-        matchesStrict[matchesStrictLen++] = targetI;
-        ++searchI;
-        if (searchI === searchLen) { 
-          successStrict = true;
+  for (;;) {
+    if (targetI < targetLen) {
+      if (termLowerCodes[termI] === targetLowerCodes[targetI]) {
+        strictMatches[strictMatchesLen++] = targetI;
+        ++termI;
+        if (termI === termLen) { 
+          strictSuccess = true;
           break 
         }
         ++targetI;
@@ -113,41 +102,42 @@ const fuzzy = (searchLowerCodes, prepared) => {
         targetI = nextBeginningIndexes[targetI];
       }
     }
+    else break
   }
 
-  // Calculate the score which goes down if they're not consecutive.
-  // Keep track of match indexes for highlighting.
-  let matchesBest;
-  let matchesBestLen;
-  if (successStrict) { 
-    matchesBest = matchesStrict;
-    matchesBestLen = matchesStrictLen; 
+  // Get the score, which goes down if they're not consecutive.
+  // Get the match indexes for highlighting.
+  let matchIndexes;
+  let matchIndexesLen;
+  if (strictSuccess) { 
+    matchIndexes = strictMatches;
+    matchIndexesLen = strictMatchesLen; 
   }
   else { 
-    matchesBest = matchesSimple;
-    matchesBestLen = matchesSimpleLen; 
+    matchIndexes = simpleMatches;
+    matchIndexesLen = simpleMatchesLen; 
   }
   let score = 0;
   let lastTargetI = -1;
-  for (let i = 0; i < searchLen; ++i) {
-    targetI = matchesBest[i];
+  for (let i = 0; i < termLen; ++i) {
+    targetI = matchIndexes[i];
     if (lastTargetI !== targetI - 1) score -= targetI;
     lastTargetI = targetI;
   }
-  if (!successStrict) score *= 1000;
-  score -= targetLen - searchLen;
+  if (!strictSuccess) score *= 1000;
+  score -= targetLen - termLen;
   let match = {
     _indexes: [],
     text: prepared.text,
     score
   };
-  for (let i = matchesBestLen - 1; i >= 0; --i) match._indexes[i] = matchesBest[i];
+  for (let i = matchIndexesLen - 1; i >= 0; --i) match._indexes[i] = matchIndexes[i];
   return match
-};
+}
 
 const MAX_SAFE_INTEGER = 9007199254740991;
 
-const getValue = (obj, prop) => {
+function getValue (obj, prop) {
   const tmp = obj[prop];
   if (tmp !== undefined) return tmp
   let segs = prop;
@@ -155,9 +145,9 @@ const getValue = (obj, prop) => {
   let i = -1;
   while (obj && (++i < segs.length)) obj = obj[segs[i]];
   return obj
-};
+}
 
-const getWeightedScore = (matches, weights) => {
+function getWeightedScore (matches, weights) {
   let max = -MAX_SAFE_INTEGER;
   for (let i = matches.length - 1; i >= 0; --i) {
     const match = matches[i];
@@ -168,11 +158,11 @@ const getWeightedScore = (matches, weights) => {
   }
   if (max === -MAX_SAFE_INTEGER) return null
   return max
-};
+}
 
-const search = (term, targets, options) => {
+function search (term, targets, options) {
   if (!term) return []
-  term = prepareLowerCodes(term);
+  const termLowerCodes = prepareLowerCodes(term);
   
   const q = queue();
 
@@ -188,7 +178,7 @@ const search = (term, targets, options) => {
        
       if (!prepared || !prepared._codes || !prepared._indexes) continue 
 
-      let match = fuzzy(term, prepared);
+      let match = fuzzy(termLowerCodes, prepared);
       if (match === null) continue
       if (match.score < threshold) continue
 
@@ -224,7 +214,7 @@ const search = (term, targets, options) => {
           continue 
         }
 
-        matches[keyI] = fuzzy(term, prepared);
+        matches[keyI] = fuzzy(termLowerCodes, prepared);
       }
 
       const score = getWeightedScore(matches, options.weights || []);
@@ -251,9 +241,9 @@ const search = (term, targets, options) => {
   let results = [];
   for (let i = resultsCount - 1; i >= 0; --i) results[i] = q.poll();
   return results
-};
+}
 
-const highlight = (result, openTag, closeTag) => {
+function highlight (result, openTag, closeTag) {
   if (result === null) return null
   if (result === undefined) return null
   if (openTag === undefined) openTag = '<b>';
@@ -289,6 +279,6 @@ const highlight = (result, openTag, closeTag) => {
   }
   
   return highlighted
-};
+}
 
 export { highlight, prepare, search };

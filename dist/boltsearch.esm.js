@@ -1,10 +1,16 @@
-function prepareLowerCodes (target) {
+function prepareLowerCodes(target) {
   let lowerCodes = [];
-  for (let i = 0; i < target.length; ++i) lowerCodes[i] = target.toLowerCase().charCodeAt(i);
+  for (let i = 0; i < target.length; ++i) {
+    lowerCodes[i] = target
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .charCodeAt(i);
+  }
   return lowerCodes
 }
 
-function prepareBeginningIndexes (target) {
+function prepareBeginningIndexes(target) {
   let beginningIndexes = [];
   let beginningIndexesLen = 0;
   let wasUpper = false;
@@ -21,7 +27,7 @@ function prepareBeginningIndexes (target) {
   return beginningIndexes
 }
 
-function prepareNextBeginningIndexes (target) {
+function prepareNextBeginningIndexes(target) {
   let beginningIndexes = prepareBeginningIndexes(target);
   let nextBeginningIndexes = [];
   let lastIsBeginning = beginningIndexes[0];
@@ -38,7 +44,7 @@ function prepareNextBeginningIndexes (target) {
   return nextBeginningIndexes
 }
 
-function prepare (target) {
+function prepare(target) {
   if (!target) return {
     text: '',
     _codes: [],
@@ -54,7 +60,7 @@ function prepare (target) {
 // https://github.com/lemire/FastPriorityQueue.js
 const queue = function(){var r=[],o=0,e={};function n(){for(var e=0,n=r[e],c=1;c<o;){var f=c+1;e=c,f<o&&r[f].score<r[c].score&&(e=f),r[e-1>>1]=r[e],c=1+(e<<1);}for(var a=e-1>>1;e>0&&n.score<r[a].score;a=(e=a)-1>>1)r[e]=r[a];r[e]=n;}return e.add=function(e){var n=o;r[o++]=e;for(var c=n-1>>1;n>0&&e.score<r[c].score;c=(n=c)-1>>1)r[n]=r[c];r[n]=e;},e.poll=function(){if(0!==o){var e=r[0];return r[0]=r[--o],n(),e}},e.peek=function(e){if(0!==o)return r[0]},e.replaceTop=function(o){r[0]=o,n();},e};
 
-function fuzzy (termLowerCodes, prepared) {
+function fuzzy(termLowerCodes, prepared) {
   const targetLowerCodes = prepared._codes;
   const termLen = termLowerCodes.length;
   const targetLen = targetLowerCodes.length;
@@ -63,7 +69,7 @@ function fuzzy (termLowerCodes, prepared) {
   let simpleMatches = [];
   let simpleMatchesLen = 0;
   let termLowerCode = termLowerCodes[0];
-  
+
   // Go through term and target codes to find sequential matches.
   // If not all term characters are found, exit fuzzy function with null.
   for (;;) {
@@ -92,12 +98,12 @@ function fuzzy (termLowerCodes, prepared) {
       if (termLowerCodes[termI] === targetLowerCodes[targetI]) {
         strictMatches[strictMatchesLen++] = targetI;
         ++termI;
-        if (termI === termLen) { 
+        if (termI === termLen) {
           strictSuccess = true;
-          break 
+          break
         }
         ++targetI;
-      } 
+      }
       else {
         targetI = nextBeginningIndexes[targetI];
       }
@@ -109,13 +115,13 @@ function fuzzy (termLowerCodes, prepared) {
   // Get the match indexes for highlighting.
   let matchIndexes;
   let matchIndexesLen;
-  if (strictSuccess) { 
+  if (strictSuccess) {
     matchIndexes = strictMatches;
-    matchIndexesLen = strictMatchesLen; 
+    matchIndexesLen = strictMatchesLen;
   }
-  else { 
+  else {
     matchIndexes = simpleMatches;
-    matchIndexesLen = simpleMatchesLen; 
+    matchIndexesLen = simpleMatchesLen;
   }
   let score = 0;
   let lastTargetI = -1;
@@ -137,7 +143,7 @@ function fuzzy (termLowerCodes, prepared) {
 
 const MAX_SAFE_INTEGER = 9007199254740991;
 
-function getValue (obj, prop) {
+function getValue(obj, prop) {
   const tmp = obj[prop];
   if (tmp !== undefined) return tmp
   let segs = prop;
@@ -147,7 +153,7 @@ function getValue (obj, prop) {
   return obj
 }
 
-function getWeightedScore (matches, weights) {
+function getWeightedScore(matches, weights) {
   let max = -MAX_SAFE_INTEGER;
   for (let i = matches.length - 1; i >= 0; --i) {
     const match = matches[i];
@@ -160,23 +166,47 @@ function getWeightedScore (matches, weights) {
   return max
 }
 
-function search (term, targets, options) {
+function escapeHTML(unsafe) {
+  return unsafe.replace(/[&<"']/g, (char) => {
+    switch (char) {
+      case '&':
+        return '&amp;'
+      case '<':
+        return '&lt;'
+      case '"':
+        return '&quot;'
+      default:
+        return '&#039;'
+    }
+  })
+}
+
+function mergeMatch(a, b) {
+  if (!a) return b
+  if (!b) return a
+  return {
+    text: a.text,
+    _indexes: a._indexes.concat(b._indexes.filter(item => a._indexes.indexOf(item) < 0))
+  }
+}
+
+function search(term, targets, options) {
   if (!term) return []
   const termLowerCodes = prepareLowerCodes(term);
-  
+
   const q = queue();
 
   const threshold = options.threshold || -MAX_SAFE_INTEGER;
   const limit = options.limit || MAX_SAFE_INTEGER;
-  
+
   let resultsCount = 0;
 
   if (options.key) {
     for (let i = targets.length - 1; i >= 0; --i) {
       const target = targets[i];
-      const prepared = getValue(target, options.key);    
-       
-      if (!prepared || !prepared._codes || !prepared._indexes) continue 
+      const prepared = getValue(target, options.key);
+
+      if (!prepared || !prepared._codes || !prepared._indexes) continue
 
       let match = fuzzy(termLowerCodes, prepared);
       if (match === null) continue
@@ -191,7 +221,7 @@ function search (term, targets, options) {
         }
       };
 
-      if (resultsCount < limit) { 
+      if (resultsCount < limit) {
         ++resultsCount;
         q.add(result);
       }
@@ -201,17 +231,17 @@ function search (term, targets, options) {
     }
   }
 
-  if (options.keys) {    
+  if (options.keys) {
     for (let i = targets.length - 1; i >= 0; --i) {
       const target = targets[i];
 
       let matches = [];
       for (let keyI = options.keys.length - 1; keyI >= 0; --keyI) {
         const prepared = getValue(target, options.keys[keyI]);
-        
-        if (!prepared || !prepared._codes || !prepared._indexes) { 
+
+        if (!prepared || !prepared._codes || !prepared._indexes) {
           matches[keyI] = null;
-          continue 
+          continue
         }
 
         matches[keyI] = fuzzy(termLowerCodes, prepared);
@@ -221,13 +251,13 @@ function search (term, targets, options) {
       if (score === null) continue
       if (score < threshold) continue
 
-      const result = { 
+      const result = {
         index: i,
-        score, 
+        score,
         matches
       };
 
-      if (resultsCount < limit) { 
+      if (resultsCount < limit) {
         ++resultsCount;
         q.add(result);
       }
@@ -235,15 +265,47 @@ function search (term, targets, options) {
         if (result.score > q.peek().score) q.replaceTop(result);
       }
     }
-  } 
-  
+  }
+
   if (resultsCount === 0) return []
   let results = [];
   for (let i = resultsCount - 1; i >= 0; --i) results[i] = q.poll();
   return results
 }
 
-function highlight (result, openTag, closeTag) {
+function process(term, targets, options) {
+  let values = term.trim().replace(/\s+/g,' ').split(' ');
+  if (values.length === 1) return search(values[0], targets, options)
+  else {
+    if (values.includes('&')) values.push('and');
+    if (values.includes('and')) values.push('&');
+    values = [...new Set(values)];
+    const results = values.flatMap(term => search(term, targets, options));
+    let map = {};
+    for (let i = results.length -1; i >= 0; --i) {
+      const result = results[i];
+      const resultI = result.index;
+      const mapped = map[resultI];
+      map[resultI] = {
+        index: resultI,
+        score: (mapped && mapped.score > result.score) ? mapped.score : result.score,
+        ...(result.match && { 
+          match: mapped 
+            ? mergeMatch(mapped.match, result.match) 
+            : result.match 
+        }),
+        ...(result.matches && { 
+          matches: mapped 
+            ? mapped.matches.map((match, index) => mergeMatch(match, result.matches[index]) ) 
+            : result.matches 
+        })
+      };
+    }
+    return Object.values(map).sort((a, b) => b.score - a.score)
+  }
+}
+
+function highlight(result, openTag, closeTag) {
   if (result === null) return null
   if (result === undefined) return null
   if (openTag === undefined) openTag = '<b>';
@@ -252,23 +314,24 @@ function highlight (result, openTag, closeTag) {
   let highlighted = '';
   let matchesIndex = 0;
   let opened = false;
-  
+
   const target = result.text;
-  const matchesBest = result._indexes;
-  
+  const matchIndexes = result._indexes;
+
   for (let i = 0; i < target.length; ++i) {
-    const char = target[i];
-    if (matchesBest[matchesIndex] === i) {
+    let char = target[i];
+    if (matchIndexes[matchesIndex] === i) {
+      char = escapeHTML(char);
       ++matchesIndex;
       if (!opened) {
         opened = true;
         highlighted += openTag;
       }
-      if (matchesIndex === matchesBest.length) {
+      if (matchesIndex === matchIndexes.length) {
         highlighted += char + closeTag + target.substr(i + 1);
         break
       }
-    } 
+    }
     else {
       if (opened) {
         opened = false;
@@ -277,8 +340,8 @@ function highlight (result, openTag, closeTag) {
     }
     highlighted += char;
   }
-  
+
   return highlighted
 }
 
-export { highlight, prepare, search };
+export { highlight, prepare, process as search };

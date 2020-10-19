@@ -1,6 +1,6 @@
 {
   "name": "boltsearch",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "author": "Harrison Lo",
   "description": "Fuzzy search library with a focus on speed and memory efficiency.",
   "homepage": "https://github.com/harrisonlo/boltsearch#readme",

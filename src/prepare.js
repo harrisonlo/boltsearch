@@ -1,4 +1,4 @@
-export function prepareLowerCodes(target) {
+export function prepareCodes(target) {
   let lowerCodes = []
   for (let i = 0; i < target.length; ++i) {
     lowerCodes[i] = target
@@ -52,7 +52,7 @@ function prepare(target) {
   }
   return {
     text: target,
-    _codes: prepareLowerCodes(target),
+    _codes: prepareCodes(target),
     _indexes: prepareNextBeginningIndexes(target)
   }
 }

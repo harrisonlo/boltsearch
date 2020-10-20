@@ -1,11 +1,11 @@
 import queue from './queue'
 import fuzzy from './fuzzy'
-import { prepareLowerCodes } from './prepare'
-import { getValue, getWeightedScore, mergeMatch, MAX_SAFE_INTEGER } from './utils'
+import { prepareCodes } from './prepare'
+import { getValue, applyWeights, mergeMatch, MAX_SAFE_INTEGER } from './utils'
 
 function search(term, targets, options) {
   if (!term) return []
-  const termLowerCodes = prepareLowerCodes(term)
+  const termCodes = prepareCodes(term)
 
   const q = queue()
 
@@ -21,7 +21,7 @@ function search(term, targets, options) {
 
       if (!prepared || !prepared._codes || !prepared._indexes) continue
 
-      let match = fuzzy(termLowerCodes, prepared)
+      let match = fuzzy(termCodes, prepared)
       if (match === null) continue
       if (match.score < threshold) continue
 
@@ -57,10 +57,10 @@ function search(term, targets, options) {
           continue
         }
 
-        matches[keyI] = fuzzy(termLowerCodes, prepared)
+        matches[keyI] = fuzzy(termCodes, prepared)
       }
 
-      const score = getWeightedScore(matches, options.weights || [])
+      const score = applyWeights(matches, options.weights || [])
       if (score === null) continue
       if (score < threshold) continue
 
@@ -87,13 +87,13 @@ function search(term, targets, options) {
 }
 
 function process(term, targets, options) {
-  let values = term.trim().replace(/\s+/g,' ').split(' ')
-  if (values.length === 1) return search(values[0], targets, options)
+  let words = term.trim().replace(/\s+/g,' ').split(' ')
+  if (words.length === 1) return search(words[0], targets, options)
   else {
-    if (values.includes('&')) values.push('and')
-    if (values.includes('and')) values.push('&')
-    values = [...new Set(values)]
-    const results = values.flatMap(term => search(term, targets, options))
+    if (words.includes('&')) words.push('and')
+    if (words.includes('and')) words.push('&')
+    words = [...new Set(words)]
+    const results = words.flatMap(term => search(term, targets, options))
     let map = {}
     for (let i = results.length -1; i >= 0; --i) {
       const result = results[i]

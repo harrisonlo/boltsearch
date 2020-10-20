@@ -1,21 +1,21 @@
-function fuzzy(termLowerCodes, prepared) {
-  const targetLowerCodes = prepared._codes
-  const termLen = termLowerCodes.length
-  const targetLen = targetLowerCodes.length
+function fuzzy(termCodes, prepared) {
+  const targetCodes = prepared._codes
+  const termLen = termCodes.length
+  const targetLen = targetCodes.length
   let termI = 0
   let targetI = 0
   let simpleMatches = []
   let simpleMatchesLen = 0
-  let termLowerCode = termLowerCodes[0]
+  let termCode = termCodes[0]
 
   // Go through term and target codes to find sequential matches.
   // If not all term characters are found, exit fuzzy function with null.
   for (;;) {
-    if (termLowerCode === targetLowerCodes[targetI]) {
+    if (termCode === targetCodes[targetI]) {
       simpleMatches[simpleMatchesLen++] = targetI
       ++termI
       if (termI === termLen) break
-      termLowerCode = termLowerCodes[termI]
+      termCode = termCodes[termI]
     }
     ++targetI
     if (targetI >= targetLen) return null
@@ -23,6 +23,7 @@ function fuzzy(termLowerCodes, prepared) {
 
   // Target matched all term characters in sequence,
   // move on to strict test to improve the score.
+  // Only match consecutive or beginning characters.
   const nextBeginningIndexes = prepared._indexes
   termI = 0
   targetI = 0 // ?
@@ -30,10 +31,9 @@ function fuzzy(termLowerCodes, prepared) {
   let strictMatches = []
   let strictMatchesLen = 0
 
-  // Only count it as a match if it's consecutive or a beginning character.
   for (;;) {
     if (targetI < targetLen) {
-      if (termLowerCodes[termI] === targetLowerCodes[targetI]) {
+      if (termCodes[termI] === targetCodes[targetI]) {
         strictMatches[strictMatchesLen++] = targetI
         ++termI
         if (termI === termLen) {
@@ -49,8 +49,7 @@ function fuzzy(termLowerCodes, prepared) {
     else break
   }
 
-  // Get the score, which goes down if they're not consecutive.
-  // Get the match indexes for highlighting.
+  // Get the score and highlight indexes.
   let matchIndexes
   let matchIndexesLen
   if (strictSuccess) {

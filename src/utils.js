@@ -43,6 +43,6 @@ export function mergeMatch(a, b) {
   if (!b) return a
   return {
     text: a.text,
-    _indexes: a._indexes.concat(b._indexes.filter(item => a._indexes.indexOf(item) < 0))
+    _indexes: a._indexes.concat(b._indexes.filter(item => a._indexes.indexOf(item) < 0)).sort()
   }
 }

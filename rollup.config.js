@@ -1,3 +1,4 @@
+import { terser } from 'rollup-plugin-terser'
 import pkg from './package.json'
 
 export default {
@@ -6,5 +7,6 @@ export default {
     { file: pkg.main, format: 'cjs' }, 
     { file: pkg.module, format: 'es' },
     { file: pkg.browser, format: 'umd', name: 'boltsearch' }
-  ]
+  ],
+  plugins: [terser()]
 }

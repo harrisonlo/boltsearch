@@ -1,5 +1,8 @@
 export const MAX_SAFE_INTEGER = 9007199254740991
 
+export const separators = [' ', '！', '？', '，', '。', '、', '…']
+export const separatorCodes = [...separators.map(str => str.charCodeAt(0))]
+
 export function getValue(obj, prop) {
   const tmp = obj[prop]
   if (tmp !== undefined) return tmp

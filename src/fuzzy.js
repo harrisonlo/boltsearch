@@ -1,80 +1,81 @@
+import { separatorCodes } from './utils'
+
 function fuzzy(termCodes, prepared) {
   const targetCodes = prepared._codes
   const termLen = termCodes.length
   const targetLen = targetCodes.length
   let termI = 0
   let targetI = 0
-  let simpleMatches = []
-  let simpleMatchesLen = 0
   let termCode = termCodes[0]
 
-  // Go through term and target codes to find sequential matches.
-  // If not all term characters are found, exit fuzzy function with null.
+  // Keep records of matches and best matches
+  let matches = []
+  let matchesLen = 0
+  let matchesSkipLen = 0
+  let bestMatches = []
+  let bestMatchesLen = 0
+  let bestMatchesSkipLen = 0
   for (;;) {
     if (termCode === targetCodes[targetI]) {
-      simpleMatches[simpleMatchesLen++] = targetI
+      matches[matchesLen++] = targetI
       ++termI
-      if (termI === termLen) break
+      if (termI === termLen) {
+        // Exact match, exit check.
+        bestMatches = matches
+        bestMatchesLen = matchesLen
+        bestMatchesSkipLen = matchesSkipLen
+        break
+      }
       termCode = termCodes[termI]
     }
-    ++targetI
-    if (targetI >= targetLen) return null
-  }
-
-  // Target matched all term characters in sequence,
-  // move on to strict test to improve the score.
-  // Only match consecutive or beginning characters.
-  const nextBeginningIndexes = prepared._indexes
-  termI = 0
-  targetI = 0 // ?
-  let strictSuccess = false
-  let strictMatches = []
-  let strictMatchesLen = 0
-
-  for (;;) {
-    if (targetI < targetLen) {
-      if (termCodes[termI] === targetCodes[targetI]) {
-        strictMatches[strictMatchesLen++] = targetI
-        ++termI
-        if (termI === termLen) {
-          strictSuccess = true
-          break
-        }
-        ++targetI
-      }
-      else {
-        targetI = nextBeginningIndexes[targetI]
+    else {
+      ++matchesSkipLen
+      // If target code is a separator, reset term index.
+      if (separatorCodes.includes(targetCodes[targetI])) {
+        termI = 0
+        termCode = termCodes[termI]
+        matches = []
+        matchesLen = 0
+        matchesSkipLen = 0
       }
     }
-    else break
+    if (matchesLen > 0) {
+      // If same number are matched but with fewer skips, make it the best.
+      if (matchesLen === bestMatchesLen) {
+        if (matchesSkipLen < bestMatchesSkipLen) {
+          bestMatches = matches
+          bestMatchesLen = matchesLen
+          bestMatchesSkipLen = matchesSkipLen
+        }
+      }
+      // If more are matched, make it the best.
+      if (matchesLen > bestMatchesLen) {
+        bestMatches = matches
+        bestMatchesLen = matchesLen
+        bestMatchesSkipLen = matchesSkipLen
+      }
+    }
+    ++targetI
+    if (targetI >= targetLen) break
   }
 
-  // Get the score and highlight indexes.
-  let matchIndexes
-  let matchIndexesLen
-  if (strictSuccess) {
-    matchIndexes = strictMatches
-    matchIndexesLen = strictMatchesLen
-  }
-  else {
-    matchIndexes = simpleMatches
-    matchIndexesLen = simpleMatchesLen
-  }
+  // Calculate the score.
   let score = 0
-  let lastTargetI = -1
-  for (let i = 0; i < termLen; ++i) {
-    targetI = matchIndexes[i]
-    if (lastTargetI !== targetI - 1) score -= targetI
-    lastTargetI = targetI
-  }
-  if (!strictSuccess) score *= 1000
-  score -= targetLen - termLen
+
+  // 80 points for percentage of term matched.
+  score += (bestMatchesLen / termLen) * 80
+
+  // 10 points for how consecutive the matches are.
+  score += bestMatchesLen ? 10 - (bestMatchesSkipLen / termLen) : 0
+
+  // 10 points for how close it is to the beginning.
+  score += bestMatchesLen ? 10 - (bestMatches[0] / (targetLen - 1)) : 0
+
   let match = {
-    _indexes: [],
+    score,
     text: prepared.text,
-    score
+    _indexes: bestMatches
   }
-  for (let i = matchIndexesLen - 1; i >= 0; --i) match._indexes[i] = matchIndexes[i]
   return match
 }
 

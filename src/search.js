@@ -19,7 +19,7 @@ function search(term, targets, options) {
       const target = targets[i]
       const prepared = getValue(target, options.key)
 
-      if (!prepared || !prepared._codes || !prepared._indexes) continue
+      if (!prepared || !prepared._codes) continue
 
       let match = fuzzy(termCodes, prepared)
       if (match === null) continue
@@ -52,7 +52,7 @@ function search(term, targets, options) {
       for (let keyI = options.keys.length - 1; keyI >= 0; --keyI) {
         const prepared = getValue(target, options.keys[keyI])
 
-        if (!prepared || !prepared._codes || !prepared._indexes) {
+        if (!prepared || !prepared._codes) {
           matches[keyI] = null
           continue
         }

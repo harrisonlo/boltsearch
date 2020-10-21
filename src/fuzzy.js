@@ -19,24 +19,20 @@ function fuzzy(termCodes, prepared) {
     if (termCode === targetCodes[targetI]) {
       matches[matchesLen++] = targetI
       ++termI
-      if (termI === termLen) {
-        // Exact match, exit check.
-        bestMatches = matches
-        bestMatchesLen = matchesLen
-        bestMatchesSkipLen = matchesSkipLen
-        break
-      }
       termCode = termCodes[termI]
     }
     else {
       ++matchesSkipLen
       // If target code is a separator, reset term index.
       if (separatorCodes.includes(targetCodes[targetI])) {
-        termI = 0
-        termCode = termCodes[termI]
-        matches = []
-        matchesLen = 0
-        matchesSkipLen = 0
+        // Let term overflow if perfectly matched so far.
+        if (matchesSkipLen > 0) {
+          termI = 0
+          termCode = termCodes[termI]
+          matches = []
+          matchesLen = 0
+          matchesSkipLen = 0
+        }
       }
     }
     if (matchesLen > 0) {

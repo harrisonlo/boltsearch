@@ -77,24 +77,20 @@
       if (termCode === targetCodes[targetI]) {
         matches[matchesLen++] = targetI;
         ++termI;
-        if (termI === termLen) {
-          // Exact match, exit check.
-          bestMatches = matches;
-          bestMatchesLen = matchesLen;
-          bestMatchesSkipLen = matchesSkipLen;
-          break
-        }
         termCode = termCodes[termI];
       }
       else {
         ++matchesSkipLen;
         // If target code is a separator, reset term index.
         if (separatorCodes.includes(targetCodes[targetI])) {
-          termI = 0;
-          termCode = termCodes[termI];
-          matches = [];
-          matchesLen = 0;
-          matchesSkipLen = 0;
+          // Let term overflow if perfectly matched so far.
+          if (matchesSkipLen > 0) {
+            termI = 0;
+            termCode = termCodes[termI];
+            matches = [];
+            matchesLen = 0;
+            matchesSkipLen = 0;
+          }
         }
       }
       if (matchesLen > 0) {
@@ -137,12 +133,6 @@
     return match
   }
 
-  function mergeScore(a, b) {
-    if (a === b) return a
-    if (a > b) return a + (b / 10)
-    if (b > a) return b + (a / 10)
-  }
-
   function mergeMatch(a, b) {
     if (!a) return b
     if (!b) return a
@@ -152,24 +142,28 @@
     }
   }
 
-  function merge(results) {
+  function merge(results, limit) {
     let map = {};
-    for (let i = results.length -1; i >= 0; --i) {
-      const result = results[i];
-      const resultI = result.index;
-      const mapped = map[resultI];
-      map[resultI] = {
-        index: resultI,
-        score: mapped ? mergeScore(mapped.score, result.score) : result.score,
-        ...(result.match && { 
-          match: mapped ? mergeMatch(mapped.match, result.match) : result.match
-        }),
-        ...(result.matches && { 
-          matches: mapped ? mapped.matches.map((match, index) => mergeMatch(match, result.matches[index])) : result.matches
-        })
-      };
-    }
-    return Object.values(map).sort((a, b) => b.score - a.score)
+    results.forEach(({ weight, results }) => {
+      for (let i = results.length -1; i >= 0; --i) {
+        const result = results[i];
+        const resultI = result.index;
+        const mapped = map[resultI];
+        map[resultI] = {
+          index: resultI,
+          score: mapped ? mapped.score + result.score * weight : result.score * weight,
+          ...(result.match && { 
+            match: mapped ? mergeMatch(mapped.match, result.match) : result.match
+          }),
+          ...(result.matches && { 
+            matches: mapped ? mapped.matches.map((match, index) => mergeMatch(match, result.matches[index])) : result.matches
+          })
+        };
+      }
+    });
+    const merged = Object.values(map).sort((a, b) => b.score - a.score);
+    if (limit) return merged.slice(0, limit)
+    return merged
   }
 
   function search(term, targets, options) {
@@ -229,21 +223,20 @@
           matches[keyI] = fuzzy(termCodes, prepared);
         }
 
-        const totalWeight = options.weights ? options.weights.reduce((a, b) => a + b, 0) : options.keys.length;
-        const totalScore = matches.reduce((score, match, index) => {
+        const sum = options.weights ? options.weights.reduce((a, b) => a + b, 0) : options.keys.length;
+        const score = matches.reduce((score, match, index) => {
           if (match === null) return score
-          if (options.weights) return score + (match.score * options.weights[index] / totalWeight)
-          return score + (match.score / totalWeight)
+          if (options.weights) return score + (match.score * options.weights[index] / sum)
+          return score + (match.score / sum)
         }, 0);
 
-        const score = totalScore / options.keys.length;
         if (score === null) continue
         if (score < threshold) continue
 
         const result = {
           index: i,
           score,
-          matches
+          matches: matches.map(match => ({ text: match.text, indexes: match.indexes }))
         };
 
         if (resultsCount < limit) {
@@ -266,13 +259,13 @@
     let words = term.trim().replace(/\s+/g,' ').split(' ');
     if (words.length === 1) return search(words[0], targets, options)
     else {
-      // Handle ampersands
-      if (words.includes('&')) words.push('and');
-
-      // Search multiple words
       words = [...new Set(words)];
-      const results = words.flatMap(term => search(term, targets, options));
-      return merge(results)
+      const sum = words.reduce((a, b) => a + b.length, 0);
+      const results = words.map(term => ({ 
+        weight: term.length / sum, 
+        results: search(term, targets, options) 
+      }));
+      return merge(results, options.limit)
     }
   }
 

@@ -103,7 +103,7 @@ function process(term, targets, options) {
       weight: term.length / sum, 
       results: search(term, targets, options) 
     }))
-    return merge(results)
+    return merge(results, options.limit)
   }
 }
 

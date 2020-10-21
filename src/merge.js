@@ -7,7 +7,7 @@ function mergeMatch(a, b) {
   }
 }
 
-function merge(results) {
+function merge(results, limit) {
   let map = {}
   results.forEach(({ weight, results }) => {
     for (let i = results.length -1; i >= 0; --i) {
@@ -26,7 +26,9 @@ function merge(results) {
       }
     }
   })
-  return Object.values(map).sort((a, b) => b.score - a.score)
+  const merged = Object.values(map).sort((a, b) => b.score - a.score)
+  if (limit) return merged.slice(0, limit)
+  return merged
 }
 
 export default merge

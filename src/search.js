@@ -99,7 +99,11 @@ function process(term, targets, options) {
   if (words.length === 1) return search(words[0], targets, options)
   else {
     words = [...new Set(words)]
-    const results = words.flatMap(term => search(term, targets, options))
+    const sum = words.reduce((a, b) => a + b.length, 0)
+    const results = words.map(term => ({ 
+      weight: term.length / sum, 
+      results: search(term, targets, options) 
+    }))
     return merge(results)
   }
 }

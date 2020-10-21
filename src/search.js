@@ -61,14 +61,14 @@ function search(term, targets, options) {
         matches[keyI] = fuzzy(termCodes, prepared)
       }
 
-      const totalWeight = options.weights ? options.weights.reduce((a, b) => a + b, 0) : options.keys.length
-      const totalScore = matches.reduce((score, match, index) => {
+      const sum = options.weights ? options.weights.reduce((a, b) => a + b, 0) : options.keys.length
+      const score = matches.reduce((score, match, index) => {
         if (match === null) return score
-        if (options.weights) return score + (match.score * options.weights[index] / totalWeight)
-        return score + (match.score / totalWeight)
+        if (options.weights) return score + (match.score * options.weights[index] / sum)
+        return score + (match.score / sum)
       }, 0)
 
-      const score = totalScore / options.keys.length
+      // const score = totalScore / options.keys.length
       if (score === null) continue
       if (score < threshold) continue
 

@@ -55,9 +55,9 @@ const Movies: FC = () => {
     const start = Date.now()
     const options = {
       keys: ['title', 'description', 'tags.genresText', 'tags.actorsText'],
-      weights: [100000, -2000, 0, 50000],
-      threshold: -5000,
-      limit: 100
+      weights: [10, 1, 3, 5],
+      threshold: 10,
+      limit: 50
     }
     const results = search(searchTerm, preparedItems, options)
     const time = Date.now() - start

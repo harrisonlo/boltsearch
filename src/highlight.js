@@ -1,4 +1,4 @@
-import { escapeHTML } from './utils'
+import { sanitize } from './utils'
 
 function highlight(result, openTag, closeTag) {
   if (result === null) return null
@@ -11,12 +11,11 @@ function highlight(result, openTag, closeTag) {
   let opened = false
 
   const target = result.text
-  const matchIndexes = result._indexes
+  const matchIndexes = result.indexes
 
   for (let i = 0; i < target.length; ++i) {
-    let char = target[i]
+    const char = sanitize(target[i])
     if (matchIndexes[matchesIndex] === i) {
-      char = escapeHTML(char)
       ++matchesIndex
       if (!opened) {
         opened = true

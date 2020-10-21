@@ -8,7 +8,6 @@ declare namespace BoltSearch {
   type TextObject = {
     text: string
     _codes: number[]
-    _indexes: number[]
   }
   type Options = {
     threshold?: number
@@ -19,7 +18,7 @@ declare namespace BoltSearch {
   }
   type Match = {
     readonly text: string
-    readonly _indexes: number[]
+    readonly indexes: number[]
   }
   type SearchResult = {
     readonly index: number

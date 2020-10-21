@@ -74,7 +74,7 @@ function fuzzy(termCodes, prepared) {
   let match = {
     score,
     text: prepared.text,
-    _indexes: bestMatches
+    indexes: bestMatches
   }
   return match
 }

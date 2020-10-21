@@ -1,7 +1,8 @@
 import queue from './queue'
 import fuzzy from './fuzzy'
+import merge from './merge'
 import { prepareCodes } from './prepare'
-import { getValue, applyWeights, mergeMatch, MAX_SAFE_INTEGER } from './utils'
+import { parse } from './utils'
 
 function search(term, targets, options) {
   if (!term) return []
@@ -9,15 +10,15 @@ function search(term, targets, options) {
 
   const q = queue()
 
-  const threshold = options.threshold || -MAX_SAFE_INTEGER
-  const limit = options.limit || MAX_SAFE_INTEGER
+  const threshold = options.threshold || 0
+  const limit = options.limit || targets.length
 
   let resultsCount = 0
 
   if (options.key) {
     for (let i = targets.length - 1; i >= 0; --i) {
       const target = targets[i]
-      const prepared = getValue(target, options.key)
+      const prepared = parse(target, options.key)
 
       if (!prepared || !prepared._codes) continue
 
@@ -30,7 +31,7 @@ function search(term, targets, options) {
         score: match.score,
         match: {
           text: match.text,
-          _indexes: match._indexes,
+          indexes: match.indexes,
         }
       }
 
@@ -50,7 +51,7 @@ function search(term, targets, options) {
 
       let matches = []
       for (let keyI = options.keys.length - 1; keyI >= 0; --keyI) {
-        const prepared = getValue(target, options.keys[keyI])
+        const prepared = parse(target, options.keys[keyI])
 
         if (!prepared || !prepared._codes) {
           matches[keyI] = null
@@ -60,7 +61,14 @@ function search(term, targets, options) {
         matches[keyI] = fuzzy(termCodes, prepared)
       }
 
-      const score = applyWeights(matches, options.weights || [])
+      const totalWeight = options.weights ? options.weights.reduce((a, b) => a + b, 0) : options.keys.length
+      const totalScore = matches.reduce((score, match, index) => {
+        if (match === null) return score
+        if (options.weights) return score + (match.score * options.weights[index] / totalWeight)
+        return score + (match.score / totalWeight)
+      }, 0)
+
+      const score = totalScore / options.keys.length
       if (score === null) continue
       if (score < threshold) continue
 
@@ -90,31 +98,13 @@ function process(term, targets, options) {
   let words = term.trim().replace(/\s+/g,' ').split(' ')
   if (words.length === 1) return search(words[0], targets, options)
   else {
+    // Handle ampersands
     if (words.includes('&')) words.push('and')
-    if (words.includes('and')) words.push('&')
+
+    // Search multiple words
     words = [...new Set(words)]
     const results = words.flatMap(term => search(term, targets, options))
-    let map = {}
-    for (let i = results.length -1; i >= 0; --i) {
-      const result = results[i]
-      const resultI = result.index
-      const mapped = map[resultI]
-      map[resultI] = {
-        index: resultI,
-        score: (mapped && mapped.score > result.score) ? mapped.score : result.score,
-        ...(result.match && { 
-          match: mapped 
-            ? mergeMatch(mapped.match, result.match) 
-            : result.match 
-        }),
-        ...(result.matches && { 
-          matches: mapped 
-            ? mapped.matches.map((match, index) => mergeMatch(match, result.matches[index]) ) 
-            : result.matches 
-        })
-      }
-    }
-    return Object.values(map).sort((a, b) => b.score - a.score)
+    return merge(results)
   }
 }
 

@@ -25,7 +25,7 @@ const Words: FC = () => {
       return
     }
     const start = Date.now()
-    const results = search(searchTerm, preparedItems, { key: 'text' })
+    const results = search(searchTerm, preparedItems, { key: 'text', limit: 50 })
     const time = Date.now() - start
     setSearchResults(results)
     setSearchTime(time)
@@ -41,7 +41,7 @@ const Words: FC = () => {
     />
     {searchTerm && <p className='timer'>{searchResults.length} matches found in {searchTime}ms</p>}
     <ul>
-      {searchResults.slice(0, 100).map(result => (
+      {searchResults.map(result => (
         <li 
           dangerouslySetInnerHTML={{ __html: highlight(result.match) }} 
           key={result.index} 

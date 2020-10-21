@@ -68,14 +68,13 @@ function search(term, targets, options) {
         return score + (match.score / sum)
       }, 0)
 
-      // const score = totalScore / options.keys.length
       if (score === null) continue
       if (score < threshold) continue
 
       const result = {
         index: i,
         score,
-        matches
+        matches: matches.map(match => ({ text: match.text, indexes: match.indexes }))
       }
 
       if (resultsCount < limit) {

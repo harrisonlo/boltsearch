@@ -98,10 +98,6 @@ function process(term, targets, options) {
   let words = term.trim().replace(/\s+/g,' ').split(' ')
   if (words.length === 1) return search(words[0], targets, options)
   else {
-    // Handle ampersands
-    if (words.includes('&')) words.push('and')
-
-    // Search multiple words
     words = [...new Set(words)]
     const results = words.flatMap(term => search(term, targets, options))
     return merge(results)

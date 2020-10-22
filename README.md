@@ -107,8 +107,8 @@ Set the maximum number of returned results.
 
 # Learn more
 ## Under the hood
-Instead of creating a hashmap-like index of all your strings, like most other search libraries, Bolt uses an alternative approach to search based on the prepartion of [char codes](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt).
-In JavaScript, and thus the browser, when strings are compared, they are first converted to char codes. In the context of search, this operation can quickly add up latency.
+Instead of creating a hashmap-like index of all your strings, like most other search libraries, Bolt uses an alternative approach to search based on the preparation of [char codes](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt).
+In JavaScript, and thus the browser, when strings are compared, they are first converted to char codes. In the context of search, this operation can quickly add up.
 
 By preparing the char codes of search targets beforehand, Bolt eliminated a much repeated step in the V8 engine, while still able to identify fuzzy matches very quickly. It also uses much less memory as one character only maps to one number. Try out the [demo](https://harrisonlo.github.io/boltsearch), where the 'Simple' example has over 775K characters, and the 'Complex' example with multiple keys has over 200K characters.
 

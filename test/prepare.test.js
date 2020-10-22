@@ -5,5 +5,4 @@ test('prepare', () => {
   const prepared = prepare(text)
   expect(prepared).toHaveProperty('text')
   expect(prepared).toHaveProperty('_codes')
-  expect(prepared).toHaveProperty('_indexes')
 })

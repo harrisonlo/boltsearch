@@ -11,7 +11,7 @@ test('search', () => {
   expect(results[0]).toHaveProperty('score')
   expect(results[0]).toHaveProperty('match')
   expect(results[0].match).toHaveProperty('text')
-  expect(results[0].match).toHaveProperty('_indexes')
+  expect(results[0].match).toHaveProperty('indexes')
   expect(results[0].index).toBe(0)
 })
 

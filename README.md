@@ -57,7 +57,7 @@ highlight(results[0]) // <b>bo</b>lt
 | **search**(string, targets, options): results | returns an array of ranked results |
 | **highlight**(result, openTag?, closeTag?): string | returns an HTML string |
 
-## Search options
+## Search options ([example usage](https://github.com/harrisonlo/boltsearch/blob/master/demo/src/examples/Complex.tsx))
 ```
 {
   key: string

@@ -68,7 +68,6 @@ function search(term, targets, options) {
         return score + (match.score / sum)
       }, 0)
 
-      if (score === null) continue
       if (score < threshold) continue
 
       const result = {

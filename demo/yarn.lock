@@ -2488,10 +2488,10 @@ body-parser@1.19.0:
     raw-body "2.4.0"
     type-is "~1.6.17"
 
-boltsearch@latest:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/boltsearch/-/boltsearch-0.6.0.tgz#5c7c2d6562eb4aaecff8b8e31f8ebd34b0aeebd6"
-  integrity sha512-dNmqJvXsCBTKOTVqrIboEMjaQfZGOicX3h+5xa7ssX+6zshWZ3Uq4/TzDUyVvpr3ABvYY2lb1qkpzK3JiW+3Zg==
+boltsearch@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/boltsearch/-/boltsearch-1.0.0.tgz#7201e93e38afc6fbdfad516a759ee78bfdc12699"
+  integrity sha512-p+vThBVhsmbTj9pxWeP6ze5FLosbzRddGRfUXVrlQI3BJOVRf0UgEjAl23eofhrmxaVr0mJ84km7QPPuknBxfg==
 
 bonjour@^3.5.0:
   version "3.5.0"

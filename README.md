@@ -9,7 +9,7 @@
 [![Issues](https://img.shields.io/github/issues/harrisonlo/boltsearch)](https://github.com/harrisonlo/boltsearch/issues)
 [![License](https://img.shields.io/npm/l/boltsearch)](https://github.com/harrisonlo/boltsearch/blob/master/LICENSE)
 
-Bolt is a fuzzy search library with a focus on speed and memory efficiency.
+Bolt is a fuzzy search library with a focus on speed and memory efficiency. ([deprecated](https://github.com/harrisonlo/boltsearch#update))
 
 ## Features
 - Fuzzy match
@@ -115,3 +115,7 @@ By preparing the char codes of search targets beforehand, Bolt eliminated a much
 ## Trade-off
 Bolt is optimized for large lists of small to medium sized strings, ideally done on the client-side. Beyond a certain target size, the "char code" approach will start to incur more latency compared to the usual indexing approach.
 That said, both approaches can be used at the same time, where the server returns a subcollection of documents and the client quickly ranks them using Bolt.
+
+# Update
+## Deprecated
+Alas, in less than a month after I released this library, I've found a better way to implement search yet again. Props to [@lucaong](https://github.com/lucaong)'s [minisearch](https://github.com/lucaong/minisearch) library, which uses even less memory with a [radix tree](https://en.wikipedia.org/wiki/Radix_tree) data structure. It also has higher search accuracy using the complete edit distance algorithm. There is no highlighting feature in it, but you can use [highlight-words-core](https://www.npmjs.com/package/highlight-words-core) to supplement it. In my benchmark test, Bolt still appears to be faster with shorter length search terms, but the difference is quite unnoticeable and I'd trade that in for less memory usage and more search accuracy.

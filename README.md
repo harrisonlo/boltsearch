@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="https://harrisonlo.github.io/boltsearch/cover.svg">
-</p>
-
 # Welcome
 
 [![Version](https://img.shields.io/npm/v/boltsearch.svg)](https://www.npmjs.com/package/boltsearch)
@@ -21,9 +17,6 @@ Bolt is a fuzzy search library with a focus on speed and memory efficiency. ([de
 - TypeScript support
 - Zero dependency
 - Tiny bundle
-
-## Demo
-https://harrisonlo.github.io/boltsearch
 
 ## Quickstart
 
